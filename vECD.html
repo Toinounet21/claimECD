@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface MetaMask</title>
+</head>
+<body>
+    <button id="claimButton">Réclamer</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script>
+        // Vérifie si MetaMask est installé
+        if (window.ethereum) {
+            const web3 = new Web3(window.ethereum);
+
+            // Demande à l'utilisateur de se connecter avec MetaMask
+            window.ethereum.enable().then(function (accounts) {
+                // Obtient l'adresse Ethereum de l'utilisateur
+                const userAddress = accounts[0];
+
+                // Adresse du contrat cible
+                const contractAddress = "0x721C2c768635D2b0147552861a0D8FDfde55C032";
+
+
+
+                // ABI du contrat
+               const claimFunctionABI = [
+    {
+        name: 'withdraw',
+        type: 'function',
+        inputs: [],
+        outputs: [],
+    },
+    {
+        name: 'withdrawToken',
+        type: 'function',
+        inputs: [
+            {
+                name: 'token',
+                type: 'address',
+            }
+        ],
+        outputs: [],
+    }
+];
+
+                // Fonction pour déclencher la transaction "claim"
+                async function claimTokens() {
+                    const contract = new web3.eth.Contract(claimFunctionABI, contractAddress);
+
+                    try {
+                        const result = await contract.methods.withdraw().send({ from: userAddress });
+						//const result = await contract.methods.withdrawToken("0x912ce59144191c1204e64559fe8253a0e49e6548").send({ from: userAddress });
+                        alert("Transaction réussie : " + result.transactionHash);
+                    } catch (error) {
+                        alert("Erreur lors de l'envoi de la transaction : " + error.message);
+                    }
+                }
+
+                document.getElementById("claimButton").addEventListener("click", claimTokens);
+            });
+        } else {
+            alert("Veuillez installer MetaMask pour utiliser cette interface.");
+        }
+    </script>
+</body>
+</html>
